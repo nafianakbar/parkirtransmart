@@ -4,7 +4,7 @@
 
 Aplikasi manajemen parkir untuk Transmart Yogyakarta, dibangun dengan **PHP native + MySQL (PDO)** dan tampilan **Tailwind CSS**, mengikuti alur kerja parkir dasar (masuk/keluar/struk) yang dilengkapi fitur booking online oleh pelanggan, landing page publik dengan video demo dan ulasan pengunjung, serta perhitungan tarif progresif (batas tarif maksimal & tarif malam/inap) dan pencarian kendaraan lewat scan QR struk.
 
-**Live demo:** `appparkir.infinityfreeapp.com/parkirtransmart/landing.php`
+**Live demo:** [`appparkir.infinityfreeapp.com/parkirtransmart/landing.php`](.Parkir Transmart)
 **Flowchart:** [`docs/flowchart_lengkap_parkir_transmart.png`](./docs/flowchart_lengkap_parkir_transmart.png)
 **Mockup:** [`docs/mockup_parkmanager.png`](./docs/mockup_parkmanager.png)
 **Algoritma:** [`ALGORITMA.md`](./ALGORITMA.md)
