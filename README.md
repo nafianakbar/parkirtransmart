@@ -6,7 +6,7 @@ Aplikasi manajemen parkir untuk Transmart Yogyakarta, dibangun dengan **PHP nati
 
 **Live demo:** `appparkir.infinityfreeapp.com/parkirtransmart/landing.php`
 **Flowchart:** [`docs/flowchart_lengkap_parkir_transmart.png`](./docs/flowchart_lengkap_parkir_transmart.png)
-**Mockup:** [`docs/mockup_parkmanager.png`](./docs/mockup_parkmanager.png)
+**Mockup:** [`mockup_parkmanager.png`](./docs/mockup_parkmanager.png)
 **Algoritma:** [`ALGORITMA.md`](./ALGORITMA.md)
 
 ---
