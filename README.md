@@ -11,18 +11,6 @@ Aplikasi manajemen parkir untuk Transmart Yogyakarta, dibangun dengan **PHP nati
 
 ---
 
-## 0. Dokumentasi Terkait
-
-| Dokumen | Isi | Lokasi |
-|---|---|---|
-| 📊 **Flowchart** | Alur sistem lengkap dari landing page sampai semua dashboard per role, termasuk logika tarif maksimal/malam & status fitur QRIS | `docs/flowchart_lengkap_parkir_transmart.png` |
-| 🎨 **Mockup** | Low-fidelity wireframe (branding "ParkManager") — struktur halaman landing page & dashboard tiap role sebelum masuk desain visual final | `docs/mockup_parkmanager.png` |
-| 🧮 **Algoritma** | Pseudocode tiap proses inti (login, booking, transaksi masuk/keluar, hitung tarif maksimal + tarif malam, QRIS dinamis, dsb.) | `ALGORITMA.md` |
-
-> Taruh `flowchart_lengkap_parkir_transmart.png` dan `mockup_parkmanager.png` di folder `docs/` pada root project (buat foldernya kalau belum ada) supaya link di atas langsung nyambung. Kalau naruhnya di folder lain, sesuaikan path link-nya.
-
----
-
 ## 1. Struktur Folder
 
 ```
@@ -61,7 +49,7 @@ parkirtransmart/
 ├── kelola_area.php              (CRUD area parkir & kapasitas slot)
 ├── kelola_kendaraan.php         (CRUD data kendaraan)
 ├── kelola_tarif.php             (CRUD tarif: per jam, batas tarif maksimal, tarif malam/inap)
-├── pengaturan_qris.php          (Admin: simpan QRIS statis toko) ⚠️ belum ada di server, lihat §8
+├── pengaturan_qris.php          (Admin: simpan QRIS statis toko) ⚠️ belum ada di server, lihat §7
 ├── log_aktivitas.php            (akses log aktivitas seluruh user, khusus Admin)
 ├── booking.php                  (booking slot parkir online oleh pelanggan)
 ├── booking_saya.php             (riwayat & pembatalan booking milik pelanggan)
@@ -69,55 +57,18 @@ parkirtransmart/
 ├── transaksi_masuk.php          (input kendaraan masuk, termasuk dari booking)
 ├── transaksi_keluar.php         (proses kendaraan keluar: cari via ketik atau scan QR,
 │                                  hitung tarif maksimal + tarif malam, pilih metode bayar)
-├── qris_generate.php            (endpoint gambar QRIS dinamis, nominal otomatis) ⚠️ lihat §8
+├── qris_generate.php            (endpoint gambar QRIS dinamis, nominal otomatis) ⚠️ lihat §7
 ├── struk_masuk.php              (cetak struk saat kendaraan masuk, termasuk QR code tiket)
 ├── struk_keluar.php             (cetak struk & bukti pembayaran saat keluar, rincian biaya)
 ├── rekap_transaksi.php          (rekap transaksi milik Owner)
 └── laporan.php                  (laporan pendapatan & statistik untuk Owner)
 ```
 
-> Catatan: seluruh halaman berada langsung di folder root project (bukan dipisah per subfolder role), pembatasan akses tiap role dijaga lewat `auth_guard.php` (`require_role([...])`) di baris awal setiap file.
+Seluruh halaman berada langsung di folder root project (bukan dipisah per subfolder role), pembatasan akses tiap role dijaga lewat `auth_guard.php` (`require_role([...])`) di baris awal setiap file.
 
 ---
 
-## 2. Instalasi Lokal (XAMPP / Laragon)
-
-1. Copy folder `parkirtransmart` ke dalam `htdocs` (XAMPP) atau `www` (Laragon).
-2. Buka phpMyAdmin, buat database baru, lalu jalankan skema awal (tabel `tb_user`, `tb_kendaraan`, `tb_tarif`, `tb_area_parkir`, `tb_transaksi`, `tb_log_aktivitas`), kemudian import berurutan:
-   1. `sql/booking_migration.sql` — role `user` dan tabel `tb_booking`
-   2. `sql/tarif_maksimal_migration.sql` — kolom `jam_maksimal`, `tarif_maksimal` di `tb_tarif`
-   3. `sql/tarif_malam_migration.sql` — kolom `jam_malam`, `tarif_inap` di `tb_tarif`, kolom `biaya_inap` di `tb_transaksi`
-   4. `sql/qris_migration.sql` — tabel `tb_pengaturan` dan kolom `metode_bayar` di `tb_transaksi`
-3. Buka `config.php`, sesuaikan bila perlu:
-   ```php
-   define('DB_HOST', 'localhost');
-   define('DB_NAME', 'db_parkir_transmart');
-   define('DB_USER', 'root');
-   define('DB_PASS', '');
-   ```
-4. Akses aplikasi melalui `http://localhost/parkirtransmart/landing.php`.
-
----
-
-## 3. Deploy ke Hosting (InfinityFree)
-
-Project ini live di InfinityFree dengan domain `appparkir.infinityfreeapp.com`. Ringkasan langkah deploy-nya:
-
-1. Upload seluruh isi folder `parkirtransmart` (bukan foldernya) langsung ke folder `htdocs` lewat File Manager atau FTP InfinityFree.
-2. Buat database MySQL baru lewat panel InfinityFree (nama database & user otomatis diberi prefix, misal `if0_xxxxxxx_db_parkir_transmart`), lalu import skema awal + keempat file migrasi (urutan di atas) lewat phpMyAdmin bawaan InfinityFree.
-3. Sesuaikan `config.php` dengan kredensial yang diberikan InfinityFree:
-   ```php
-   define('DB_HOST', 'sqlXXX.infinityfree.com');
-   define('DB_NAME', 'if0_xxxxxxx_db_parkir_transmart');
-   define('DB_USER', 'if0_xxxxxxx');
-   define('DB_PASS', '••••••••');
-   ```
-4. Scan QR (struk & QRIS) butuh akses kamera browser, yang **hanya jalan lewat HTTPS** (kecuali di `localhost`). Pastikan akses situs pakai `https://`, bukan `http://`.
-5. **Perlu diperbaiki sebelum production:** `config.php` saat ini masih mengaktifkan `display_errors` (komentar di kode menandainya sebagai *"DEBUG SEMENTARA — WAJIB dihapus"*), sehingga detail error PDO (host/kredensial) bisa terlihat publik jika koneksi gagal. Matikan `display_errors` dan ganti pesan error koneksi jadi pesan generik sebelum live.
-
----
-
-## 4. Akun & Pendaftaran
+## 2. Akun & Pendaftaran
 
 | Role | Cara mendapatkan akun | Keterangan |
 |---|---|---|
@@ -130,7 +81,7 @@ Login memakai satu form yang sama untuk semua role (`index.php` → `login.php`)
 
 ---
 
-## 5. Hak Akses Fitur
+## 3. Hak Akses Fitur
 
 | Fitur | Admin | Petugas | Owner | User |
 |---|---|---|---|---|
@@ -139,7 +90,7 @@ Login memakai satu form yang sama untuk semua role (`index.php` → `login.php`)
 | Registrasi tersembunyi (kode rahasia, perlu approval) | ✔ | ✔ | ✔ | |
 | CRUD User | ✔ | | | |
 | CRUD Tarif Parkir (per jam, batas maksimal, tarif malam) | ✔ | | | |
-| Pengaturan QRIS toko ⚠️ *(belum aktif, lihat §8)* | ✔ | | | |
+| Pengaturan QRIS toko ⚠️ *(belum aktif, lihat §7)* | ✔ | | | |
 | CRUD Area Parkir (kapasitas slot) | ✔ | | | |
 | CRUD Kendaraan | ✔ | | | |
 | Akses Log Aktivitas | ✔ | | | |
@@ -156,7 +107,7 @@ Login memakai satu form yang sama untuk semua role (`index.php` → `login.php`)
 
 ---
 
-## 6. Skema Database
+## 4. Skema Database
 
 Tabel utama:
 
@@ -176,7 +127,7 @@ Relasi antar tabel dijaga dengan **FOREIGN KEY** (`tb_booking` ↔ `tb_user` / `
 
 ---
 
-## 7. Alur Kerja Aplikasi
+## 5. Alur Kerja Aplikasi
 
 1. Pengunjung publik membuka `landing.php`: melihat profil layanan, video demo aplikasi, dan bisa mengirim ulasan/rating baru (langsung tampil, dilindungi honeypot anti-bot, tanpa moderasi admin).
 2. Pelanggan mendaftar mandiri lewat `register_user.php` (nama, plat nomor, jenis kendaraan, no HP, password), akun langsung aktif dan bisa login.
@@ -186,17 +137,27 @@ Relasi antar tabel dijaga dengan **FOREIGN KEY** (`tb_booking` ↔ `tb_user` / `
    - Jam ke-1 s/d batas tertentu dihitung per jam normal.
    - Lewat batas itu, biaya **berhenti bertambah** dan dikunci ke tarif maksimal (flat).
    - Kalau kendaraan masih ada sampai lewat jam malam tertentu (mis. 22:00), ditambahkan **biaya inap** flat di atasnya — nginap 2 malam kena 2× biaya inap.
-   - Petugas memilih metode bayar (Tunai / QRIS ⚠️ *lihat §8*), lalu struk keluar dicetak (`struk_keluar.php`) dengan rincian biaya inap dan metode bayar, dan slot area bertambah kembali.
+   - Petugas memilih metode bayar (Tunai / QRIS ⚠️ *lihat §7*), lalu struk keluar dicetak (`struk_keluar.php`) dengan rincian biaya inap dan metode bayar, dan slot area bertambah kembali.
 6. Admin mengelola seluruh master data (user, tarif — termasuk batas maksimal & tarif malam, area, kendaraan) dan memantau log aktivitas seluruh pengguna, termasuk menyetujui/mengaktifkan akun staf baru yang mendaftar lewat `register.php`.
 7. Owner memantau rekap transaksi (`rekap_transaksi.php`) dan laporan pendapatan/statistik (`laporan.php`) pada dashboard-nya.
 
 ---
 
-## 8. Hal yang Perlu Diperhatikan
+## 6. Dokumentasi Terkait
 
-- **Fitur QRIS belum lengkap/belum aktif.** `qris_generate.php` butuh `helper_biaya.php` untuk jalan, dan Admin butuh `pengaturan_qris.php` untuk menyimpan QRIS statis toko (`tb_pengaturan.qris_statis`) — pastikan kedua file ini benar-benar ter-upload ke server, dan `transaksi_keluar.php` yang dipakai adalah versi yang sudah punya pilihan metode bayar Tunai/QRIS. Kalau salah satu file itu hilang, tombol/link menuju `qris_generate.php` akan menampilkan **fatal error**, bukan gambar QR.
+| Dokumen | Isi |
+|---|---|
+| 📊 **Flowchart** | Alur sistem lengkap dari landing page sampai semua dashboard per role, termasuk logika tarif maksimal/malam & status fitur QRIS |
+| 🎨 **Mockup** | Low-fidelity wireframe (branding "ParkManager") — struktur halaman landing page & dashboard tiap role sebelum masuk desain visual final |
+| 🧮 **Algoritma** | Pseudocode tiap proses inti (login, booking, transaksi masuk/keluar, hitung tarif maksimal + tarif malam, QRIS dinamis, dsb.) |
+
+---
+
+## 7. Hal yang Perlu Diperhatikan
+
+- **Fitur QRIS belum lengkap/belum aktif.** `qris_generate.php` butuh `helper_biaya.php` untuk jalan, dan Admin butuh `pengaturan_qris.php` untuk menyimpan QRIS statis toko (`tb_pengaturan.qris_statis`). Kalau salah satu file itu hilang, tombol/link menuju `qris_generate.php` akan menampilkan **fatal error**, bukan gambar QR.
 - Nominal QRIS dibuat **dinamis dari QRIS statis toko** (teknik injeksi tag EMVCo tag 54 + hitung ulang CRC), bukan lewat payment gateway resmi — artinya konfirmasi "pembayaran sudah masuk" masih **manual** oleh Petugas (cek notifikasi HP/EDC), belum otomatis dari sistem.
-- Halaman `register.php` untuk staf tidak ditautkan dari navigasi manapun (hidden by design) — pastikan kode rahasia `TRANSMARTSIGMA` tidak bocor keluar tim, dan pertimbangkan memindahkannya ke konfigurasi/env alih-alih hardcode di kode.
-- `config.php` masih dalam mode debug (`display_errors` aktif) — wajib dimatikan sebelum benar-benar digunakan publik di production.
-- Fitur scan QR (baik di struk masuk maupun QRIS) butuh **HTTPS** dan izin kamera browser — kalau kamera gagal diakses padahal sudah HTTPS, cek izin kamera per-situs di browser dan di level OS, serta pastikan link dibuka lewat browser asli (bukan in-app browser WhatsApp/Instagram).
-- Belum ditemukan file skema SQL awal (`.sql` lengkap) di project, yang tersedia hanya file-file migrasi di folder `sql/`. Disarankan mengekspor skema awal (`tb_user`, `tb_kendaraan`, `tb_tarif`, `tb_area_parkir`, `tb_transaksi`, `tb_log_aktivitas`) dari database yang sudah berjalan supaya instalasi ulang lebih mudah.
+- Halaman `register.php` untuk staf tidak ditautkan dari navigasi manapun (hidden by design) — kode rahasia `TRANSMARTSIGMA` sebaiknya tidak bocor keluar tim.
+- `config.php` masih dalam mode debug (`display_errors` aktif) — detail error PDO (host/kredensial) bisa terlihat publik kalau koneksi gagal.
+- Fitur scan QR (struk maupun QRIS) butuh **HTTPS** dan izin kamera browser — tidak akan berfungsi di `http://` biasa (kecuali `localhost`), dan bisa gagal juga kalau dibuka lewat in-app browser (WhatsApp/Instagram) alih-alih browser asli.
+- Belum ada file skema SQL awal (`.sql` lengkap) di project — yang tersedia hanya file-file migrasi di folder `sql/`.
